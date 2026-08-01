@@ -187,14 +187,103 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
-    // Card entrance stagger
-    gsapLib.utils.toArray(".service-card, .why-card, .testimonial-card").forEach((card) => {
+    // Card entrance stagger — service & why cards
+    gsapLib.utils.toArray(".service-card, .why-card").forEach((card) => {
       gsapLib.fromTo(
         card,
         { y: 24, opacity: 0 },
         {
           y: 0, opacity: 1, duration: 0.9, ease: "power3.out",
           scrollTrigger: { trigger: card, start: "top 90%" }
+        }
+      );
+    });
+
+    // Testimonial cards: entrance then continuous float
+    gsapLib.utils.toArray(".testimonial-card").forEach((card, i) => {
+      gsapLib.fromTo(
+        card,
+        { y: 28, opacity: 0 },
+        {
+          y: 0, opacity: 1, duration: 0.9, ease: "power3.out",
+          delay: i * 0.12,
+          scrollTrigger: { trigger: card, start: "top 90%" },
+          onComplete: () => {
+            gsapLib.to(card, {
+              y: -11,
+              duration: 3.2 + i * 0.7,
+              ease: "sine.inOut",
+              yoyo: true,
+              repeat: -1
+            });
+          }
+        }
+      );
+    });
+
+    // Section title underline reveal
+    gsapLib.utils.toArray(".section-title").forEach((title) => {
+      stLib.create({
+        trigger: title, start: "top 88%", once: true,
+        onEnter: () => title.classList.add("title-visible")
+      });
+    });
+
+    // Timeline line draw
+    if (document.querySelector(".timeline .line")) {
+      gsapLib.fromTo(".timeline .line",
+        { scaleX: 0, transformOrigin: "left center" },
+        {
+          scaleX: 1, duration: 1.8, ease: "power2.inOut",
+          scrollTrigger: { trigger: ".timeline", start: "top 75%" }
+        }
+      );
+    }
+
+    // Service area map towns: staggered pop-in
+    const towns = document.querySelectorAll(".service-map__town");
+    if (towns.length > 0) {
+      stLib.create({
+        trigger: ".service-map", start: "top 80%", once: true,
+        onEnter: () => {
+          towns.forEach((town, i) => {
+            setTimeout(() => town.classList.add("town-visible"), i * 110);
+          });
+        }
+      });
+    }
+
+    // Service area list items slide in
+    gsapLib.utils.toArray(".service-area-list li").forEach((li, i) => {
+      gsapLib.fromTo(li,
+        { x: -22, opacity: 0 },
+        {
+          x: 0, opacity: 1, duration: 0.55, ease: "power2.out",
+          delay: i * 0.07,
+          scrollTrigger: { trigger: ".service-area-list", start: "top 85%", once: true }
+        }
+      );
+    });
+
+    // Stat cards pop in with scale
+    gsapLib.utils.toArray(".stat-card").forEach((card, i) => {
+      gsapLib.fromTo(card,
+        { scale: 0.8, opacity: 0 },
+        {
+          scale: 1, opacity: 1, duration: 0.65, ease: "back.out(1.7)",
+          delay: i * 0.1,
+          scrollTrigger: { trigger: ".stats-grid", start: "top 85%", once: true }
+        }
+      );
+    });
+
+    // Why cards: alternating slide from left/right
+    gsapLib.utils.toArray(".why-card").forEach((card, i) => {
+      gsapLib.fromTo(card,
+        { x: i % 2 === 0 ? -35 : 35, opacity: 0 },
+        {
+          x: 0, opacity: 1, duration: 0.85, ease: "power3.out",
+          scrollTrigger: { trigger: card, start: "top 88%" }
         }
       );
     });
@@ -219,4 +308,18 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  const spotlightCards = Array.from(
+    document.querySelectorAll(".service-card, .why-card, .testimonial-card, .stat-card")
+  );
+  if (spotlightCards.length > 0) {
+    let spotlightIndex = 0;
+    const rotateSpotlight = () => {
+      spotlightCards.forEach((card) => card.classList.remove("card-spotlight"));
+      spotlightCards[spotlightIndex]?.classList.add("card-spotlight");
+      spotlightIndex = (spotlightIndex + 1) % spotlightCards.length;
+    };
+    rotateSpotlight();
+    window.setInterval(rotateSpotlight, 1800);
+  }
 });
